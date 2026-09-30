@@ -1,0 +1,6 @@
+{
+  "name": "BTS & SUGA 6th Month Anniversary",
+  "description": "Página web móvil interactiva de aniversario de 6 meses inspirada en BTS, SUGA y Shooky con contador, memorias polaroid, carta interactiva y boleto VIP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

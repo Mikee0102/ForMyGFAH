@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Felices 6 Meses Juntos 💜 BTS & SUGA Aniversario 🍪</title>
+  <meta name="description" content="Página interactiva de aniversario de 6 meses inspirada en BTS, SUGA y Shooky." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bts: {
+              stage: '#08050e',
+              dark: '#0f0a1a',
+              surface: '#181126',
+              surfaceHover: '#231838',
+              lavender: '#d8b4fe',
+              purple: '#8425d9',
+              deep: '#43126e',
+              glow: 'rgba(132, 37, 217, 0.2)'
+            },
+            shooky: {
+              cookie: '#b8773e',
+              dark: '#6e431c',
+              light: '#deb48a',
+              crumb: '#482a13',
+              chip: '#2d180a',
+              warmBg: '#1f1610'
+            },
+            gold: {
+              light: '#fde047',
+              DEFAULT: '#eab308',
+              dark: '#a16207'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            outfit: ['"Outfit"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- canvas-confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- EmailJS SDK CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #08050e;
+      color: #ede9f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Fondo tenue, menos luminoso, con tinte cálido y misterioso */
+    .bg-space-dust {
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(132, 37, 217, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 35%, rgba(184, 119, 62, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(67, 18, 110, 0.15) 0%, transparent 50%);
+    }
+
+    /* Efecto 3D Flip para polaroids */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1.25rem;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Boleto estilo Agust D Tour */
+    .ticket-container {
+      position: relative;
+      background: linear-gradient(145deg, #160f24 0%, #0d0816 100%);
+    }
+    .ticket-notch-left, .ticket-notch-right {
+      position: absolute;
+      top: 56%;
+      width: 24px;
+      height: 24px;
+      background-color: #08050e;
+      border-radius: 50%;
+      z-index: 10;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+    }
+    .ticket-notch-left { left: -12px; }
+    .ticket-notch-right { right: -12px; }
+    .ticket-tear-line {
+      position: absolute;
+      top: 56%;
+      left: 12px;
+      right: 12px;
+      border-top: 2px dashed rgba(216, 180, 254, 0.25);
+      z-index: 5;
+    }
+
+    /* Animaciones */
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 12px rgba(132, 37, 217, 0.35);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 22px rgba(184, 119, 62, 0.45);
+        transform: scale(1.02);
+      }
+    }
+    .animate-pulse-glow {
+      animation: pulse-glow 2.8s infinite ease-in-out;
+    }
+
+    @keyframes rotate-disc {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: rotate-disc 6s linear infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes float-shooky {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(1.2deg); }
+    }
+    .animate-float-shooky {
+      animation: float-shooky 3s ease-in-out infinite;
+    }
+
+    /* Elementos flotantes decorativos (galletitas y corazones) */
+    .floating-item {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.18;
+      animation: float-around 14s infinite ease-in-out;
+    }
+    @keyframes float-around {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-25px) rotate(15deg); }
+    }
+  </style>
+</head>
+<body class="bg-space-dust antialiased selection:bg-purple-600 selection:text-white pb-24">
+
+  <!-- Elementos flotantes de fondo (Galletas y Corazones) -->
+  <div class="floating-item text-lg top-12 left-4">🍪</div>
+  <div class="floating-item text-sm top-32 right-6" style="animation-delay: 2s;">💜</div>
+  <div class="floating-item text-base top-1/2 left-3" style="animation-delay: 4s;">🍪</div>
+  <div class="floating-item text-lg top-2/3 right-5" style="animation-delay: 1s;">💜</div>
+  <div class="floating-item text-sm bottom-20 left-8" style="animation-delay: 3s;">🍪</div>
+
+  <!-- REPRODUCTOR FLOTANTE -->
+  <aside id="audioPlayerContainer" class="fixed top-4 right-4 z-50 flex items-center gap-2">
+    <button id="toggleAudioBtn" 
+            type="button" 
+            aria-label="Reproducir o pausar música" 
+            class="relative w-12 h-12 rounded-full bg-bts-surface/90 border border-purple-500/30 backdrop-blur-md shadow-lg shadow-black/60 flex items-center justify-center text-bts-lavender hover:text-white transition-all active:scale-95 focus:outline-none">
+      <div id="discDisc" class="absolute inset-1 rounded-full border border-purple-500/20 flex items-center justify-center">
+        <i id="audioIcon" class="fa-solid fa-music text-sm text-amber-200"></i>
+      </div>
+      <span id="audioPing" class="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full animate-ping opacity-0"></span>
+      <span id="audioStatusDot" class="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full opacity-0 border border-bts-dark"></span>
+    </button>
+  </aside>
+
+  <!-- Archivo de música local -->
+  <audio id="bgAudio" loop preload="auto">
+    <source src="cancion.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- ========================================================
+       1. PANTALLA DE ACCESO (GATE)
+       ======================================================== -->
+  <section id="gateScreen" class="fixed inset-0 z-40 bg-bts-stage flex items-center justify-center p-4 transition-all duration-700">
+    <div class="w-full max-w-sm bg-bts-dark/95 border border-purple-950 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 text-center relative overflow-hidden backdrop-blur-xl">
+      
+      <!-- Fondo sutil -->
+      <div class="absolute -top-10 -right-10 w-28 h-28 bg-purple-900/20 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-28 h-28 bg-shooky-dark/20 rounded-full blur-xl pointer-events-none"></div>
+
+      <!-- Avatar Shooky con Gif opcional o SVG -->
+      <div class="relative w-28 h-28 mx-auto mb-3 animate-float-shooky flex items-center justify-center">
+        <img src="gif1.gif" alt="Shooky Love" class="w-24 h-24 object-contain drop-shadow-[0_4px_12px_rgba(184,119,62,0.3)]" onerror="this.style.display='none'; document.getElementById('shookyFallbackSvg').classList.remove('hidden');" />
+        
+        <!-- Fallback SVG si el gif aún carga -->
+        <svg id="shookyFallbackSvg" viewBox="0 0 120 120" class="hidden w-full h-full drop-shadow-[0_8px_16px_rgba(184,119,62,0.35)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="60" cy="62" rx="46" ry="42" fill="#B8773E" stroke="#482A13" stroke-width="4.5"/>
+          <circle cx="34" cy="40" r="3" fill="#6E431C"/>
+          <circle cx="86" cy="42" r="2.5" fill="#6E431C"/>
+          <circle cx="78" cy="80" r="3" fill="#6E431C"/>
+          <circle cx="38" cy="78" r="2.5" fill="#6E431C"/>
+          <path d="M38 42C43 38 50 41 50 41" stroke="#2D180A" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M82 42C77 38 70 41 70 41" stroke="#2D180A" stroke-width="3.5" stroke-linecap="round"/>
+          <ellipse cx="44" cy="50" rx="5" ry="6.5" fill="#140D08"/>
+          <circle cx="42.5" cy="48" r="2" fill="#FFFFFF"/>
+          <ellipse cx="76" cy="50" rx="5" ry="6.5" fill="#140D08"/>
+          <circle cx="74.5" cy="48" r="2" fill="#FFFFFF"/>
+          <path d="M48 64C52 74 68 74 72 64" fill="#581414" stroke="#2D180A" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="56" y="64" width="7" height="4.5" rx="1.5" fill="#FFFFFF"/>
+          <g transform="translate(74, 68) scale(0.9)">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#8425D9" stroke="#E9D5FF" stroke-width="1.2"/>
+          </g>
+        </svg>
+      </div>
+
+      <span class="inline-block text-[11px] font-semibold tracking-wider text-purple-300 uppercase mb-1">
+        Área Protegida por Shooky 🍪💜
+      </span>
+      <h1 class="text-xl font-bold font-outfit text-white mb-2">
+        Nuestros 6 Meses
+      </h1>
+      <p class="text-xs text-purple-200/70 mb-5 leading-relaxed">
+        Ingresa tu nombre o apodo especial para abrir esta pequeña sorpresa:
+      </p>
+
+      <!-- Formulario de ingreso -->
+      <form id="gateForm" onsubmit="event.preventDefault(); verificarAcceso();" class="space-y-3">
+        <div>
+          <input 
+            type="text" 
+            id="gateInputName" 
+            placeholder="Escribe aquí..." 
+            autocomplete="off"
+            class="w-full px-4 py-3 rounded-xl bg-bts-surface border border-purple-900/60 text-white placeholder-purple-400/40 text-sm focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/50 transition-all text-center"
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          id="btnDesbloquear"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-amber-700 text-white font-semibold text-sm shadow-lg shadow-black/50 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span>Abrir Sorpresa</span>
+          <i class="fa-solid fa-cookie-bite text-amber-200"></i>
+        </button>
+      </form>
+
+      <!-- Mensaje de error -->
+      <div id="gateErrorMsg" class="hidden mt-3 p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-heart-crack text-red-400"></i>
+        <span id="gateErrorText">¡Casi! Intenta con tu nombre o un apodo tierno 🍪💜</span>
+      </div>
+
+      <p class="mt-4 text-[11px] text-purple-400/50">
+        Pistas: <span class="italic text-purple-300/70">Adaya, Hilen, mi amor, bolita, mi vida</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       2. CONTENIDO PRINCIPAL
+       ======================================================== -->
+  <main id="mainContent" class="hidden opacity-0 max-w-md mx-auto px-4 pt-6 transition-opacity duration-1000">
+
+    <!-- HERO -->
+    <header class="text-center mb-8 relative">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bts-surface border border-purple-500/20 text-purple-200 text-xs font-medium mb-3">
+        <i class="fa-solid fa-heart text-purple-400"></i>
+        <span>6 Meses Inolvidables • Borahae</span>
+        <span>🍪</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold font-outfit tracking-tight text-white mb-2">
+        ¡Felices <span class="bg-gradient-to-r from-purple-300 via-amber-200 to-purple-400 bg-clip-text text-transparent">6 Meses</span>!
+      </h1>
+      
+      <p class="text-base text-purple-200/90 font-medium">
+        Para ti, <span id="heroCustomName" class="text-amber-300 font-semibold underline decoration-purple-500/50 underline-offset-4">mi niña hermosa</span> 💜
+      </p>
+
+      <blockquote class="mt-3 px-4 py-2 text-xs italic text-purple-300/70 max-w-xs mx-auto border-l-2 border-purple-500/40 text-left bg-bts-surface/60 rounded-r-lg">
+        "En un mundo lleno de prisa, coincidir contigo ha sido la melodía más hermosa y serena de mi vida."
+        <span class="block text-[10px] text-right font-sans not-italic text-amber-300/70 mt-1">— Con todo mi amor</span>
+      </blockquote>
+
+      <!-- CONTADOR -->
+      <section class="mt-6 p-4 rounded-2xl bg-bts-dark border border-purple-950/80 shadow-lg shadow-black/60">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-purple-300/80 mb-3 flex items-center justify-center gap-1.5">
+          <i class="fa-regular fa-clock text-amber-300"></i>
+          <span>Tiempo de amarnos</span>
+        </h2>
+        
+        <div class="grid grid-cols-4 gap-2 text-center" id="counterGrid">
+          <div class="p-2.5 rounded-xl bg-bts-surface border border-purple-900/30">
+            <span id="counterDays" class="block text-2xl font-bold font-outfit text-white tabular-nums">00</span>
+            <span class="text-[10px] text-purple-300 uppercase tracking-wider">Días</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-bts-surface border border-purple-900/30">
+            <span id="counterHours" class="block text-2xl font-bold font-outfit text-purple-200 tabular-nums">00</span>
+            <span class="text-[10px] text-purple-300 uppercase tracking-wider">Horas</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-bts-surface border border-purple-900/30">
+            <span id="counterMinutes" class="block text-2xl font-bold font-outfit text-amber-200 tabular-nums">00</span>
+            <span class="text-[10px] text-purple-300 uppercase tracking-wider">Min</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-bts-surface border border-purple-900/30">
+            <span id="counterSeconds" class="block text-2xl font-bold font-outfit text-pink-300 tabular-nums">00</span>
+            <span class="text-[10px] text-purple-300 uppercase tracking-wider">Seg</span>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <!-- ==========================================
+         SECCIÓN DE MEMORIAS CON TODAS TUS FOTOS
+         ========================================== -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+            <span>Nuestras Memorias</span>
+            <span class="text-xs px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-800/40">Polaroid</span>
+          </h2>
+          <p class="text-xs text-purple-300/60">Toca cada foto para ver el mensaje secreto 💜</p>
+        </div>
+        <span class="text-lg">🍪</span>
+      </div>
+
+      <!-- Contenedor dinámico de polaroids -->
+      <div id="polaroidsGrid" class="space-y-6"></div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN DE LA CARTA
+         ========================================== -->
+    <section class="mb-12">
+      <div class="text-center mb-4">
+        <h2 class="text-lg font-bold font-outfit text-white flex items-center justify-center gap-2">
+          <i class="fa-solid fa-envelope-open-text text-amber-300"></i>
+          <span>Una Carta Para Ti</span>
+        </h2>
+        <p class="text-xs text-purple-300/70">Toca el sobre sellado para leerla</p>
+      </div>
+
+      <div id="envelopeWrapper" class="relative max-w-sm mx-auto cursor-pointer" onclick="toggleCartaAmor()">
+        <div id="envelopeBox" class="relative bg-gradient-to-b from-bts-surface to-bts-dark border border-purple-900/50 rounded-2xl p-6 text-center shadow-xl transition-all duration-300 hover:border-purple-500/50 active:scale-98">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-tr from-shooky-dark to-shooky-cookie border-2 border-amber-300/40 shadow-lg flex items-center justify-center text-amber-950 font-bold text-xl relative">
+            <i class="fa-solid fa-cookie text-xl text-amber-100"></i>
+            <span class="absolute -bottom-1 text-[9px] bg-purple-900 text-purple-200 px-1.5 py-0.2 rounded-full border border-purple-400">6M</span>
+          </div>
+
+          <p class="text-sm font-semibold text-white mb-1">Carta de Aniversario</p>
+          <p class="text-xs text-purple-300/70">Confidencial • Solo para tus ojitos 💜</p>
+
+          <div class="mt-4 inline-flex items-center gap-2 text-xs font-medium text-amber-300 bg-shooky-dark/30 px-3 py-1 rounded-full border border-amber-500/30">
+            <span>Presiona para desplegar</span>
+            <i class="fa-solid fa-arrow-down-long animate-bounce text-xs"></i>
+          </div>
+        </div>
+
+        <article id="letterPaper" class="hidden mt-4 bg-[#140e21] text-purple-100 rounded-2xl p-6 shadow-2xl border border-purple-800/50 relative">
+          <button 
+            type="button" 
+            onclick="event.stopPropagation(); toggleCartaAmor();" 
+            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-purple-950/80 text-purple-300 hover:text-white flex items-center justify-center">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+
+          <div class="border-b border-purple-900/50 pb-3 mb-4 text-center">
+            <span class="text-[11px] uppercase tracking-widest text-amber-400 font-semibold">6 Meses Juntos</span>
+            <h3 class="font-serif italic text-2xl font-bold text-white mt-1">Mi amor hermoso,</h3>
+            <p class="text-[11px] text-purple-300/60 mt-0.5">Escrito con todo mi corazón</p>
+          </div>
+
+          <div class="space-y-3 text-xs sm:text-sm text-purple-200/90 leading-relaxed font-sans text-justify">
+            <p>
+              Medio año a tu lado ha sido el viaje más bonito de mi vida. Cada risa compartida, cada mensaje y cada momento juntos me confirman que no pude haber encontrado a mejor persona para caminar a mi lado.
+            </p>
+            <p>
+              Me encanta verte sonreír, compartir tus gustos, escuchar de Suga, BTS y reírnos de cualquier tontería. Gracias por ser mi lugar seguro, por tu paciencia, tu ternura y por hacer que cada día tenga una razón especial para ser feliz.
+            </p>
+            <p class="font-serif italic text-amber-200 font-semibold pt-1">
+              "En este inmenso universo, coincidir contigo ha sido mi mayor fortuna. I Purple You, hoy, mañana y siempre."
+            </p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-purple-900/50 flex items-center justify-between">
+            <div class="text-left">
+              <span class="block text-xs font-semibold text-white">Tu novio que te ama</span>
+              <span class="text-[10px] text-purple-400">Siempre a tu lado</span>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-purple-950 flex items-center justify-center text-purple-400 border border-purple-700/50">
+              <i class="fa-solid fa-heart text-sm"></i>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         3. SORPRESA FINAL (BOLETO VIP)
+         ========================================== -->
+    <section class="mb-14 text-center">
+      <div class="mb-6">
+        <span class="text-[11px] font-bold text-amber-400 uppercase tracking-widest block mb-1">
+          ★ Gran Revelación ★
+        </span>
+        <h2 class="text-xl sm:text-2xl font-bold font-outfit text-white">
+          ¿Lista para tu regalo de 6 meses?
+        </h2>
+        <p class="text-xs text-purple-300/70 mt-1 max-w-xs mx-auto">
+          Shooky y yo preparamos algo inolvidable para nosotros 💜
+        </p>
+      </div>
+
+      <button 
+        type="button" 
+        id="btnObtenerSorpresa"
+        onclick="revelarSorpresa()" 
+        class="relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-purple-800 via-purple-600 to-amber-700 text-white font-bold text-base shadow-xl shadow-purple-950/80 hover:brightness-110 active:scale-95 transition-all animate-pulse-glow focus:outline-none">
+        <i class="fa-solid fa-sparkles text-amber-200"></i>
+        <span>Obtener mi sorpresa ✨</span>
+        <i class="fa-solid fa-ticket text-amber-200"></i>
+      </button>
+
+      <!-- BOLETO VIRTUAL -->
+      <div id="ticketContainer" class="hidden mt-8 text-left transition-all duration-700">
+        
+        <div class="ticket-container rounded-3xl p-5 sm:p-6 border border-purple-900/60 shadow-2xl overflow-hidden text-white">
+          <div class="ticket-notch-left"></div>
+          <div class="ticket-notch-right"></div>
+          <div class="ticket-tear-line"></div>
+
+          <div class="relative z-10 pb-6">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                <span class="text-[10px] font-bold tracking-widest text-amber-300 uppercase">SUGA | BTS OFFICIAL PASS</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-950 text-purple-200 border border-purple-800/50 font-mono">
+                PASS #06M
+              </span>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-black font-outfit tracking-tight text-white uppercase bg-gradient-to-r from-purple-200 via-amber-200 to-purple-300 bg-clip-text text-transparent">
+              BOLETOS OFICIALES
+            </h3>
+            <p class="text-xs text-purple-300/80 font-medium">¡Nos vamos de concierto juntos! 💜</p>
+
+            <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-purple-900/40 text-xs">
+              <div>
+                <span class="block text-[10px] text-purple-400 uppercase tracking-wider font-semibold">Titular</span>
+                <span id="ticketUserHolder" class="font-bold text-white text-sm">Mi Niña</span>
+              </div>
+              <div>
+                <span class="block text-[10px] text-purple-400 uppercase tracking-wider font-semibold">Fecha</span>
+                <span class="font-bold text-white text-sm">Próximamente 💜</span>
+              </div>
+              <div>
+                <span class="block text-[10px] text-purple-400 uppercase tracking-wider font-semibold">Evento</span>
+                <span class="font-bold text-amber-300 text-sm">Concierto Favorito</span>
+              </div>
+              <div>
+                <span class="block text-[10px] text-purple-400 uppercase tracking-wider font-semibold">Lugar</span>
+                <span class="font-bold text-amber-300 text-sm">Juntos en Primera Fila</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative z-10 pt-7">
+            <div class="bg-bts-dark/60 rounded-xl p-3 border border-purple-900/30 mb-4">
+              <span class="text-[10px] font-bold text-amber-300 block mb-1">
+                <i class="fa-solid fa-circle-check mr-1"></i> Incluye:
+              </span>
+              <ul class="text-[11px] text-purple-200/90 space-y-1">
+                <li>• Experiencia completa a tu lado.</li>
+                <li>• Cantar todas las canciones a todo pulmón.</li>
+                <li>• Todo mi amor antes, durante y después.</li>
+              </ul>
+            </div>
+
+            <div class="flex flex-col items-center justify-center pt-1 text-center">
+              <span class="text-[10px] font-mono tracking-widest text-purple-400/60">
+                BTS-SUGA-6M-LOVE-FOREVER
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="mt-5 space-y-3">
+          <a 
+            id="btnDescargarPdf"
+            href="boletos.pdf" 
+            download="boletos.pdf"
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-sm shadow-lg shadow-black/50 active:scale-98 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-arrow-down text-base"></i>
+            <span>Descargar / Abrir Boletos en PDF</span>
+          </a>
+
+          <button 
+            type="button" 
+            id="btnEnviarEmail"
+            onclick="enviarBoletosPorCorreo()" 
+            class="w-full py-3.5 px-4 rounded-xl bg-bts-surface border border-purple-600/40 hover:bg-bts-surfaceHover text-purple-200 font-semibold text-sm active:scale-98 transition-all flex items-center justify-center gap-2">
+            <i class="fa-regular fa-envelope text-base text-purple-300"></i>
+            <span>Enviar Boletos a Mi Correo 📩</span>
+          </button>
+        </div>
+
+        <div id="emailFeedbackMsg" class="hidden mt-3 p-3 rounded-xl text-center text-xs"></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center pt-6 pb-12 border-t border-purple-950 text-purple-400/50 text-xs">
+      <div class="flex items-center justify-center gap-2 mb-2 text-base text-purple-400">
+        <span>🍪</span>
+        <i class="fa-solid fa-heart text-purple-600"></i>
+        <span>💜</span>
+      </div>
+      <p class="font-outfit font-medium text-purple-300/80">
+        Felices 6 meses, mi vida.
+      </p>
+      <p class="text-[11px] text-purple-500/60 mt-1">
+        Borahae • Inspirado en BTS, SUGA & Shooky
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- ========================================================
+       JAVASCRIPT
+       ======================================================== -->
+  <script>
+    // 1. FECHA DE INICIO DE SU RELACIÓN
+    const FECHA_ANIVERSARIO = new Date("2026-03-29T18:00:00"); 
+
+    // 2. NOMBRES / APODOS VÁLIDOS
+    const NOMBRES_PERMITIDOS = [
+      "adaya",
+      "hilen",
+      "mi amor",
+      "bolita",
+      "mi vida"
+    ];
+
+    // 3. ARCHIVOS LOCALES
+    const ENLACE_PDF_BOLETOS = "boletos.pdf"; 
+
+    // 4. CONFIGURACIÓN EXACTA DE EMAILJS
+    const EMAILJS_CONFIG = {
+      publicKey: "W0tQCB361KoeN-M2o",
+      serviceId: "service_jyjw4pe",
+      templateId: "template_9pwj08o",
+      correoDestino: "mv236648@gmail.com"
+    };
+
+    // 5. LISTA DE FOTOS Y MENSAJES PARA LAS POLAROIDS
+    const FOTOS_DATA = [
+      { archivo: "foto2.jpg", titulo: "Nuestra complicidad", nota: "Desde el primer día sentí que contigo todo encajaba de una forma muy natural." },
+      { archivo: "foto3.jpg", titulo: "Esa sonrisa hermosa", nota: "Tu sonrisa tiene la magia de cambiar cualquier día gris." },
+      { archivo: "foto4.jpg", titulo: "Momentos favoritos", nota: "Las mejores anécdotas siempre son a tu lado riéndonos de todo." },
+      { archivo: "foto5.jpg", titulo: "Compañera de vida", nota: "Gracias por estar siempre conmigo, escuchándome y apoyándome." },
+      { archivo: "foto6.jpg", titulo: "Tardes únicas", nota: "No importa dónde estemos, estar a tu lado lo hace especial." },
+      { archivo: "foto7.jpg", titulo: "Abrazos seguros", nota: "Tus abrazos son mi lugar favorito en el mundo entero." },
+      { archivo: "foto8.jpg", titulo: "Nuestras locuras", nota: "Me encanta cada broma y cada mirada que solo tú y yo entendemos." },
+      { archivo: "foto9.jpg", titulo: "Caminando juntos", nota: "Paso a paso, construyendo recuerdos que guardo en mi corazón." },
+      { archivo: "foto10.jpg", titulo: "Tan linda siempre", nota: "Admiro tu forma de ser, tu carisma y lo dulce que eres conmigo." },
+      { archivo: "foto11.jpg", titulo: "Mi persona favorita", nota: "Entre millones de personas en el mundo, siempre te elegiría a ti." },
+      { archivo: "foto12.jpg", titulo: "Días inolvidables", nota: "Cada salida a tu lado se convierte en un recuerdo imborrable." },
+      { archivo: "foto13.jpg", titulo: "Paz y calma", nota: "Tenerte en mi vida me da una tranquilidad inmensa." },
+      { archivo: "foto14.jpg", titulo: "Nuestras canciones", nota: "Escuchar música contigo hace que cada letra cobre sentido." },
+      { archivo: "foto15.jpg", titulo: "Miradas sinceras", nota: "En tus ojitos siempre encuentro verdad y cariño." },
+      { archivo: "foto16.jpg", titulo: "A tu lado siempre", nota: "Cuentas conmigo en las buenas, en las malas y en todas." },
+      { archivo: "foto17.png", titulo: "Detalles mágicos", nota: "Cada pequeño momento contigo vale oro para mí." },
+      { archivo: "foto18.jpg", titulo: "Medio año de amor", nota: "6 meses que se han pasado volando porque el tiempo a tu lado es hermoso." },
+      { archivo: "foto19.jpg", titulo: "I Purple You", nota: "Borahae. Te amo con todo mi corazón, hoy y siempre." },
+      { archivo: "foto20.png", titulo: "Por muchos meses más", nota: "Esto apenas comienza, nos quedan muchos capítulos hermosos por vivir." }
+    ];
+
+    // Renderizar las fotos en el DOM
+    function renderizarFotos() {
+      const grid = document.getElementById("polaroidsGrid");
+      grid.innerHTML = FOTOS_DATA.map((item, index) => `
+        <article class="flip-card perspective-1000 w-full h-[390px] cursor-pointer" onclick="voltearTarjeta(this)">
+          <div class="flip-card-inner">
+            <!-- FRONTAL -->
+            <div class="flip-card-front bg-[#110c1c] text-purple-100 p-4 shadow-xl flex flex-col border border-purple-900/50">
+              <div class="w-16 h-3 bg-purple-900/40 mx-auto -mt-6 mb-2 rounded-sm shadow-inner rotate-${(index % 3) - 1}"></div>
+              <div class="relative w-full flex-1 rounded-xl overflow-hidden bg-black/60 border border-purple-950">
+                <img 
+                  src="${item.archivo}" 
+                  alt="${item.titulo}"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                  onerror="this.src='https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=700&q=80'"
+                />
+                <span class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-purple-200 text-[10px] px-2 py-0.5 rounded-full font-sans">
+                  💜 Recuerdo #${index + 1}
+                </span>
+              </div>
+              <div class="pt-3 pb-1 text-center">
+                <p class="font-serif italic text-base font-semibold text-white">${item.titulo}</p>
+                <div class="flex items-center justify-between text-[11px] text-purple-400 mt-1 font-sans">
+                  <span>Toca para voltear</span>
+                  <span class="text-amber-300 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-rotate text-xs"></i> 🍪
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- TRASERA -->
+            <div class="flip-card-back bg-gradient-to-br from-[#1a1228] to-[#100a1c] text-white p-6 shadow-xl flex flex-col justify-between border border-purple-700/40">
+              <div class="flex justify-between items-center border-b border-purple-900/60 pb-2">
+                <span class="text-xs font-semibold text-amber-300 flex items-center gap-1">
+                  <i class="fa-solid fa-cookie-bite"></i> Detalle Especial
+                </span>
+                <span class="text-[11px] text-purple-400">#${index + 1}</span>
+              </div>
+              <div class="my-auto text-left space-y-2">
+                <p class="text-xs leading-relaxed text-purple-100 font-sans">
+                  "${item.nota}"
+                </p>
+                <p class="text-[11px] italic text-amber-200/80">
+                  Siempre en mi corazón 💜
+                </p>
+              </div>
+              <div class="pt-2 border-t border-purple-900/40 flex items-center justify-between text-[10px] text-purple-400">
+                <span>Guardado con amor</span>
+                <span class="text-purple-300 flex items-center gap-1">
+                  <i class="fa-solid fa-rotate-left"></i> Voltear
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    /* GATE LOGIC */
+    let usuarioAutenticado = "";
+
+    function normalizarTexto(texto) {
+      return (texto || "")
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function verificarAcceso() {
+      const input = document.getElementById("gateInputName");
+      const valorIngresado = normalizarTexto(input.value);
+
+      if (!valorIngresado) {
+        mostrarErrorGate("¡Por favor escribe tu nombre o apodo especial! 🍪");
+        return;
+      }
+
+      const esValido = NOMBRES_PERMITIDOS.some(nombre => 
+        normalizarTexto(nombre) === valorIngresado || valorIngresado.includes(normalizarTexto(nombre))
+      );
+
+      if (esValido) {
+        usuarioAutenticado = input.value.trim();
+        desbloquearSitio();
+      } else {
+        mostrarErrorGate("¡Ups! Shooky dice que pienses en cómo te llama tu novio 🍪💜");
+      }
+    }
+
+    function mostrarErrorGate(mensaje) {
+      const form = document.getElementById("gateForm");
+      const errorMsg = document.getElementById("gateErrorMsg");
+      const errorText = document.getElementById("gateErrorText");
+
+      errorText.innerText = mensaje;
+      errorMsg.classList.remove("hidden");
+      form.classList.add("animate-shake");
+      setTimeout(() => form.classList.remove("animate-shake"), 500);
+    }
+
+    function desbloquearSitio() {
+      const gateScreen = document.getElementById("gateScreen");
+      const mainContent = document.getElementById("mainContent");
+      const heroCustomName = document.getElementById("heroCustomName");
+      const ticketUserHolder = document.getElementById("ticketUserHolder");
+
+      if (usuarioAutenticado) {
+        heroCustomName.innerText = usuarioAutenticado;
+        ticketUserHolder.innerText = usuarioAutenticado;
+      }
+
+      gateScreen.style.opacity = "0";
+      gateScreen.style.transform = "scale(0.95)";
+
+      setTimeout(() => {
+        gateScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        
+        setTimeout(() => {
+          mainContent.classList.remove("opacity-0");
+          mainContent.classList.add("opacity-100");
+          
+          renderizarFotos();
+          iniciarContadorTiempo();
+          lanzarMiniConfetiBienvenida();
+          iniciarAudioSiEsPosible();
+        }, 50);
+      }, 650);
+    }
+
+    /* CONTADOR */
+    function iniciarContadorTiempo() {
+      function actualizarContador() {
+        const ahora = new Date();
+        const diferencia = ahora - FECHA_ANIVERSARIO;
+
+        if (diferencia < 0) return;
+
+        const segundosTotales = Math.floor(diferencia / 1000);
+        const dias = Math.floor(segundosTotales / (3600 * 24));
+        const horas = Math.floor((segundosTotales % (3600 * 24)) / 3600);
+        const minutos = Math.floor((segundosTotales % 3600) / 60);
+        const segundos = Math.floor(segundosTotales % 60);
+
+        document.getElementById("counterDays").innerText = dias.toString().padStart(2, "0");
+        document.getElementById("counterHours").innerText = horas.toString().padStart(2, "0");
+        document.getElementById("counterMinutes").innerText = minutos.toString().padStart(2, "0");
+        document.getElementById("counterSeconds").innerText = segundos.toString().padStart(2, "0");
+      }
+      actualizarContador();
+      setInterval(actualizarContador, 1000);
+    }
+
+    /* AUDIO */
+    const audio = document.getElementById("bgAudio");
+    const toggleAudioBtn = document.getElementById("toggleAudioBtn");
+    const audioIcon = document.getElementById("audioIcon");
+    const discDisc = document.getElementById("discDisc");
+    const audioPing = document.getElementById("audioPing");
+    const audioStatusDot = document.getElementById("audioStatusDot");
+
+    function actualizarEstadoAudio(estaSonando) {
+      if (estaSonando) {
+        audioIcon.className = "fa-solid fa-pause text-sm text-purple-300";
+        discDisc.classList.add("animate-spin-slow");
+        audioPing.classList.remove("opacity-0");
+        audioStatusDot.classList.remove("opacity-0");
+      } else {
+        audioIcon.className = "fa-solid fa-music text-sm text-amber-200";
+        discDisc.classList.remove("animate-spin-slow");
+        audioPing.classList.add("opacity-0");
+        audioStatusDot.classList.add("opacity-0");
+      }
+    }
+
+    toggleAudioBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play().then(() => actualizarEstadoAudio(true)).catch(err => console.log(err));
+      } else {
+        audio.pause();
+        actualizarEstadoAudio(false);
+      }
+    });
+
+    function iniciarAudioSiEsPosible() {
+      audio.volume = 0.55;
+      audio.play().then(() => actualizarEstadoAudio(true)).catch(() => actualizarEstadoAudio(false));
+    }
+
+    /* INTERACCIONES */
+    function voltearTarjeta(elemento) {
+      elemento.classList.toggle("flipped");
+    }
+
+    function toggleCartaAmor() {
+      const letterPaper = document.getElementById("letterPaper");
+      const envelopeBox = document.getElementById("envelopeBox");
+
+      if (letterPaper.classList.contains("hidden")) {
+        letterPaper.classList.remove("hidden");
+        envelopeBox.classList.add("hidden");
+        letterPaper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        letterPaper.classList.add("hidden");
+        envelopeBox.classList.remove("hidden");
+      }
+    }
+
+    function lanzarMiniConfetiBienvenida() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 35,
+          spread: 55,
+          origin: { y: 0.6 },
+          colors: ['#8425d9', '#d8b4fe', '#b8773e', '#eab308']
+        });
+      }
+    }
+
+    function revelarSorpresa() {
+      const ticketContainer = document.getElementById("ticketContainer");
+      const btnObtenerSorpresa = document.getElementById("btnObtenerSorpresa");
+
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.65 },
+          colors: ['#8425d9', '#d8b4fe', '#b8773e', '#eab308', '#ec4899']
+        });
+      }
+
+      ticketContainer.classList.remove("hidden");
+      setTimeout(() => ticketContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+
+      btnObtenerSorpresa.innerHTML = `
+        <i class="fa-solid fa-check text-amber-200"></i>
+        <span>¡Boleto Revelado! 💜</span>
+      `;
+      btnObtenerSorpresa.classList.remove("animate-pulse-glow");
+
+      // Dispara automáticamente el envío por correo al revelar
+      enviarBoletosPorCorreo();
+    }
+
+    /* ENVÍO CON EMAILJS */
+    let correoYaEnviado = false;
+
+    function enviarBoletosPorCorreo() {
+      if (correoYaEnviado) return;
+
+      const feedback = document.getElementById("emailFeedbackMsg");
+      const btnEnviarEmail = document.getElementById("btnEnviarEmail");
+
+      feedback.classList.remove("hidden", "bg-red-950/60", "text-red-200", "border-red-500/40", "bg-purple-950/60", "text-purple-200", "border-purple-500/40");
+
+      btnEnviarEmail.disabled = true;
+      btnEnviarEmail.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enviando boleto...`;
+
+      try {
+        emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+
+        // URL absoluta para el enlace de boletos en el correo
+        const hostUrl = window.location.href.replace(/index\.html$/, '').replace(/\/$/, '');
+        const urlBoletosCompleta = `${hostUrl}/${ENLACE_PDF_BOLETOS}`;
+
+        const templateParams = {
+          to_name: usuarioAutenticado || "Mi Amor",
+          to_email: EMAILJS_CONFIG.correoDestino,
+          event_name: "BTS / SUGA World Tour",
+          event_date: "Nuestra Próxima Gran Cita",
+          event_venue: "Juntos en Concierto",
+          ticket_link: urlBoletosCompleta
+        };
+
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, templateParams)
+          .then(() => {
+            correoYaEnviado = true;
+            feedback.className = "mt-3 p-3 rounded-xl text-center text-xs bg-emerald-950/60 text-emerald-200 border border-emerald-500/40";
+            feedback.innerHTML = `
+              <i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i>
+              ¡Boleto enviado con éxito a ${EMAILJS_CONFIG.correoDestino}! 💜
+            `;
+            btnEnviarEmail.innerHTML = `<i class="fa-solid fa-check text-emerald-300"></i> Enviado a tu correo`;
+          })
+          .catch((error) => {
+            console.error("Error al enviar con EmailJS:", error);
+            feedback.className = "mt-3 p-3 rounded-xl text-center text-xs bg-red-950/60 text-red-200 border border-red-500/40";
+            feedback.innerHTML = `
+              <i class="fa-solid fa-triangle-exclamation mr-1 text-red-400"></i>
+              No se pudo enviar el correo, pero puedes descargarlo en PDF directamente arriba.
+            `;
+            btnEnviarEmail.disabled = false;
+            btnEnviarEmail.innerHTML = `<i class="fa-regular fa-envelope"></i> Reintentar envío`;
+          });
+      } catch (err) {
+        console.error("Error EmailJS:", err);
+        feedback.className = "mt-3 p-3 rounded-xl text-center text-xs bg-red-950/60 text-red-200 border border-red-500/40";
+        feedback.innerHTML = `Hubo un inconveniente con el servicio de correo.`;
+        btnEnviarEmail.disabled = false;
+        btnEnviarEmail.innerHTML = `<i class="fa-regular fa-envelope"></i> Enviar Boletos a Mi Correo`;
+      }
+    }
+  </script>
+</body>
+</html>
